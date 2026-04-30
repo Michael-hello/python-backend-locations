@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
+from fastapi import FastAPI, Depends, HTTPException, status
 from contextlib import asynccontextmanager
 from sqlalchemy.orm import Session
 from typing import List
@@ -7,10 +7,6 @@ import logging
 from src.database import init_db, get_db
 from src.models import Location
 from src.schemas import LocationCreate, LocationUpdate, LocationResponse
-
-def write_log(message: str):
-    with open("log.txt", mode="a") as log:
-        log.write(message)
 
 
 @asynccontextmanager
@@ -24,20 +20,18 @@ app = FastAPI(lifespan=lifespan)
 
 
 logger = logging.getLogger('myapp')
-logging.basicConfig(filename='myapp.log', level=logging.error, format='%(asctime)s %(levelname)s:%(message)s')
+logging.basicConfig(filename='myapp.log', level=logging.WARNING, format='%(asctime)s %(levelname)s:%(message)s')
 
 
 @app.get("/")
-async def root(background_tasks: BackgroundTasks):
-    background_tasks.add_task(write_log, 'Hello World endpoint was called\n')
+async def root():
     return {"message": "Hello World"}
 
 
 @app.get("/locations", response_model=List[LocationResponse])
 async def list_locations(db: Session = Depends(get_db)):
-    print(db, 'DB SESSION')
     """Get all locations."""
-    logger.info('Started')
+    logger.warning(f'get all: {db.query(Location).count()}')
     locations = db.query(Location).all()
     return locations
 

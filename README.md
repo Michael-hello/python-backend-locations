@@ -10,11 +10,11 @@ Location schema:
     
 
 
-To run your app: 
+To run the app: 
     pipenv shell
     fastapi dev main.py
         OR
     pipenv run uvicorn main:app --reload
 
 To run tests: 
-    pipenv run python -m pytest test_main.py -v
+    pipenv run python -m pytest tests/test_main.py -v

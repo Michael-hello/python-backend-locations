@@ -3,7 +3,6 @@ from pydantic import BaseModel, ConfigDict, field_validator
 from datetime import datetime
 from typing import Optional
 
-
 class Trip(str, Enum):
     south_america = "South America"
     middle_east = "Middle East"
@@ -12,9 +11,9 @@ class Trip(str, Enum):
 class LocationCreate(BaseModel):
     latitude: float
     longitude: float
-    time: datetime
+    time: int
     source: str
-    trip: Trip
+    trip: str
 
     @field_validator("latitude")
     @classmethod
@@ -34,7 +33,7 @@ class LocationCreate(BaseModel):
 class LocationUpdate(BaseModel):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    time: Optional[datetime] = None
+    time: Optional[int] = None
     source: Optional[str] = None
     trip: Optional[str] = None
 
@@ -59,6 +58,6 @@ class LocationResponse(BaseModel):
     id: int
     latitude: float
     longitude: float
-    time: datetime
+    time: int
     source: str
     trip: str
