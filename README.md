@@ -1,2 +1,20 @@
 # python-backend-locations
-Backend API for android location logger app data
+Backend FastAPI server supporting CRUD operations for android location logger app data
+
+Location schema:
+    latitude
+    logitude
+    time
+    id
+    source
+    
+
+
+To run your app: 
+    pipenv shell
+    fastapi dev main.py
+        OR
+    pipenv run uvicorn main:app --reload
+
+To run tests: 
+    pipenv run python -m pytest test_main.py -v
