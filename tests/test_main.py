@@ -4,10 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-from src.main import app, get_db
-from src.database import Base
-from src.models import Location
-from src.schemas import LocationCreate
+from app.main import app, get_db
+from app.database import Base
+from app.models import Location
+from app.schemas import LocationCreate
 
 
 # Create test database

@@ -1,8 +1,8 @@
 import json
 import uuid
 
-from src.models import Location
-from src.database import init_db, get_db
+from app.models import Location
+from app.database import init_db, get_db
 
 
 def load_data():

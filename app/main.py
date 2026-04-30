@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 from typing import List
 import logging
 
-from src.database import init_db, get_db
-from src.models import Location
-from src.schemas import LocationCreate, LocationUpdate, LocationResponse
+from app.database import init_db, get_db
+from app.models import Location
+from app.schemas import LocationCreate, LocationUpdate, LocationResponse
 
 
 @asynccontextmanager

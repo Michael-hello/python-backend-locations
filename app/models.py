@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Float, String, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker
 import datetime
-from src.database import Base
+from app.database import Base
 
 class Location(Base):
     __tablename__ = "locations"
