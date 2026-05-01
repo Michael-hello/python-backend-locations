@@ -1,0 +1,8 @@
+[project]
+name = "locations_api"
+version = "0.0.1"
+description = "API and DB for locations from android app"
+readme = "README.md"
+authors = [
+    { name = "Michael Jones" },
+]
