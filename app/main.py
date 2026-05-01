@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from contextlib import asynccontextmanager
 from sqlalchemy.orm import Session
 from typing import List
@@ -15,30 +16,46 @@ async def lifespan(app: FastAPI):
     init_db()
     yield
 
-
+def check_header_api_key(request: Request):
+    header = request.headers.get('api-key-secret')
+    return header == api_key
+        
+    
 app = FastAPI(lifespan=lifespan)
-
+api_key = "0w6ph89tvHVkcyKzClMwRFtIczJFPHZb"
 
 logger = logging.getLogger('myapp')
 logging.basicConfig(filename='myapp.log', level=logging.WARNING, format='%(asctime)s %(levelname)s:%(message)s')
 
 
 @app.get("/")
-async def root():
+async def root(request: Request):
+    valid = check_header_api_key(request)
+    logger.warning(f'API key valid: {valid}')
     return {"message": "Hello World"}
 
 
+
 @app.get("/locations", response_model=List[LocationResponse])
-async def list_locations(db: Session = Depends(get_db)):
+async def list_locations(request: Request, db: Session = Depends(get_db)):
     """Get all locations."""
-    logger.warning(f'get all: {db.query(Location).count()}')
+
+    if not check_header_api_key(request):
+        raise HTTPException( status_code=status.HTTP_401_UNAUTHORIZED )
+    
     locations = db.query(Location).all()
     return locations
+  
+        
 
 
 @app.post("/locations", response_model=LocationResponse, status_code=status.HTTP_201_CREATED)
-async def create_location(location: LocationCreate, db: Session = Depends(get_db)):
+async def create_location(location: LocationCreate, request: Request, db: Session = Depends(get_db)):
     """Create a new location."""
+
+    if not check_header_api_key(request):
+        raise HTTPException( status_code=status.HTTP_401_UNAUTHORIZED )
+
     db_location = Location(**location.model_dump())
     db.add(db_location)
     db.commit()
@@ -46,9 +63,14 @@ async def create_location(location: LocationCreate, db: Session = Depends(get_db
     return db_location
 
 
+
 @app.get("/locations/{location_id}", response_model=LocationResponse)
-async def get_location(location_id: int, db: Session = Depends(get_db)):
+async def get_location(location_id: int, request: Request, db: Session = Depends(get_db)):
     """Get a location by ID."""
+
+    if not check_header_api_key(request):
+        raise HTTPException( status_code=status.HTTP_401_UNAUTHORIZED )
+
     location = db.query(Location).filter(Location.id == location_id).first()
     if not location:
         raise HTTPException(
@@ -58,13 +80,18 @@ async def get_location(location_id: int, db: Session = Depends(get_db)):
     return location
 
 
+
 @app.put("/locations/{location_id}", response_model=LocationResponse)
 async def update_location(
     location_id: int,
     location_update: LocationUpdate,
+    request: Request,
     db: Session = Depends(get_db)
 ):
     """Update a location by ID."""
+    if not check_header_api_key(request):
+        raise HTTPException( status_code=status.HTTP_401_UNAUTHORIZED )
+
     db_location = db.query(Location).filter(Location.id == location_id).first()
     if not db_location:
         raise HTTPException(
@@ -82,9 +109,14 @@ async def update_location(
     return db_location
 
 
+
 @app.delete("/locations/{location_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_location(location_id: int, db: Session = Depends(get_db)):
+async def delete_location(location_id: int, request: Request, db: Session = Depends(get_db)):
     """Delete a location by ID."""
+
+    if not check_header_api_key(request):
+        raise HTTPException( status_code=status.HTTP_401_UNAUTHORIZED )
+
     db_location = db.query(Location).filter(Location.id == location_id).first()
     if not db_location:
         raise HTTPException(

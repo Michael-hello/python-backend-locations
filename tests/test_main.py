@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-from app.main import app, get_db
+from app.main import app, get_db, api_key
 from app.database import Base
 from app.models import Location
 from app.schemas import LocationCreate
@@ -47,7 +47,7 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
-client = TestClient(app)
+client = TestClient(app, headers={"api-key-secret": api_key})
 
 
 @pytest.fixture(autouse=True)
