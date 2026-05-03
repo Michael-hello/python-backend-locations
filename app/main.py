@@ -7,7 +7,7 @@ import logging
 
 from app.database import init_db, get_db
 from app.models import Location
-from app.schemas import LocationCreate, LocationUpdate, LocationResponse
+from app.schemas import LocationCreate, LocationUpdate, LocationResponse, LocationCreateBatch
 
 
 @asynccontextmanager
@@ -29,10 +29,14 @@ logging.basicConfig(filename='myapp.log', level=logging.WARNING, format='%(ascti
 
 
 @app.get("/")
-async def root(request: Request):
-    valid = check_header_api_key(request)
-    logger.warning(f'API key valid: {valid}')
+async def root():
     return {"message": "Hello World"}
+
+
+#endpoint to stop web app hosted in renderer from sleeping
+@app.get("/health")
+async def health():
+    return {"message": "alive"}
 
 
 
@@ -49,18 +53,22 @@ async def list_locations(request: Request, db: Session = Depends(get_db)):
 
 
 
-@app.post("/locations", response_model=LocationResponse, status_code=status.HTTP_201_CREATED)
-async def create_location(location: LocationCreate, request: Request, db: Session = Depends(get_db)):
-    """Create a new location."""
+@app.post("/locations", response_model=List[LocationResponse], status_code=status.HTTP_201_CREATED)
+async def create_location(batch: LocationCreateBatch, request: Request, db: Session = Depends(get_db)):
+    """Create one or more new locations."""
 
     if not check_header_api_key(request):
         raise HTTPException( status_code=status.HTTP_401_UNAUTHORIZED )
 
-    db_location = Location(**location.model_dump())
-    db.add(db_location)
-    db.commit()
-    db.refresh(db_location)
-    return db_location
+    created_locations = []
+    for location in batch.locations:
+        db_location = Location(**location.model_dump())
+        db.add(db_location)
+        db.commit()
+        db.refresh(db_location)
+        created_locations.append(db_location)
+    
+    return created_locations
 
 
 

@@ -37,6 +37,7 @@ def create_test_location(**kwargs):
     return location
 
 
+
 def override_get_db():
     try:
         db = TestingSessionLocal()
@@ -60,10 +61,10 @@ def clear_db():
 
 def test_create_location():
     """Test creating a location."""
-    payload = create_test_location()
-    response = client.post("/locations", json=payload)
+    payload = [ create_test_location(), create_test_location() ]
+    response = client.post("/locations", json= {"locations": payload})
     assert response.status_code == 201
-    data = response.json()
+    data = response.json()[0]
     assert data["latitude"] == 40.7128
     assert data["longitude"] == -74.0060
     assert data["source"] == "test"
@@ -74,17 +75,17 @@ def test_create_location():
 
 def test_create_location_invalid_latitude():
     """Test creating location with invalid latitude."""
-    payload = create_test_location()
-    payload["latitude"] = 100  # Invalid: > 90
-    response = client.post("/locations", json=payload)
+    payload = [ create_test_location() ]
+    payload[0]["latitude"] = 100  # Invalid: > 90
+    response = client.post("/locations", json= {"locations": payload})
     assert response.status_code == 422
 
 
 def test_create_location_invalid_longitude():
     """Test creating location with invalid longitude."""
-    payload = create_test_location()
-    payload["longitude"] = 200  # Invalid: > 180
-    response = client.post("/locations", json=payload)
+    payload = [ create_test_location() ]
+    payload[0]["longitude"] = 200  # Invalid: > 180
+    response = client.post("/locations", json= {"locations": payload})
     assert response.status_code == 422
 
 
@@ -99,11 +100,11 @@ def test_list_locations_empty():
 def test_list_locations():
     """Test listing locations after creating some."""
     # Create two locations
-    payload1 = create_test_location()
-    payload2 = create_test_location(latitude=34.0522, longitude=-118.2437)
+    payload1 = [ create_test_location() ]
+    payload2 = [ create_test_location(latitude=34.0522, longitude=-118.2437) ]
 
-    client.post("/locations", json=payload1)
-    client.post("/locations", json=payload2)
+    client.post("/locations", json={"locations": payload1})
+    client.post("/locations", json={"locations": payload2})
     
     response = client.get("/locations")
     assert response.status_code == 200
@@ -115,9 +116,9 @@ def test_list_locations():
 
 def test_get_location():
     """Test getting a location by ID."""
-    payload = create_test_location()
-    create_response = client.post("/locations", json=payload)
-    location_id = create_response.json()["id"]
+    payload = [ create_test_location() ]
+    create_response = client.post("/locations", json={"locations": payload})
+    location_id = create_response.json()[0]["id"]
     
     # Get the location
     response = client.get(f"/locations/{location_id}")
@@ -137,9 +138,9 @@ def test_get_location_not_found():
 def test_update_location():
     """Test updating a location."""
     # Create a location
-    payload = create_test_location()
-    create_response = client.post("/locations", json=payload)
-    location_id = create_response.json()["id"]
+    payload = [create_test_location()]
+    create_response = client.post("/locations", json={"locations": payload})
+    location_id = create_response.json()[0]["id"]
     
     # Update the location
     update_payload = {
@@ -159,9 +160,9 @@ def test_update_location():
 def test_update_location_invalid_latitude():
     """Test updating location with invalid latitude."""
     # Create a location
-    payload = create_test_location()
-    create_response = client.post("/locations", json=payload)
-    location_id = create_response.json()["id"]
+    payload = [create_test_location()]
+    create_response = client.post("/locations", json={"locations": payload})
+    location_id = create_response.json()[0]["id"]
     
     # Try to update with invalid latitude
     update_payload = {"latitude": 100}
@@ -179,9 +180,9 @@ def test_update_location_not_found():
 def test_delete_location():
     """Test deleting a location."""
     # Create a location
-    payload = create_test_location()
-    create_response = client.post("/locations", json=payload)
-    location_id = create_response.json()["id"]
+    payload = [create_test_location()]
+    create_response = client.post("/locations", json={"locations": payload})
+    location_id = create_response.json()[0]["id"]
     
     # Delete the location
     response = client.delete(f"/locations/{location_id}")
@@ -201,14 +202,14 @@ def test_delete_location_not_found():
 def test_full_crud_workflow():
     """Test a complete CRUD workflow."""
     # CREATE
-    payload = create_test_location(
+    payload = [create_test_location(
         latitude=51.5074,
         longitude=-0.1278,
         trip="london-trip"
-    )
-    create_response = client.post("/locations", json=payload)
+    )]
+    create_response = client.post("/locations", json={"locations": payload})
     assert create_response.status_code == 201
-    location_id = create_response.json()["id"]
+    location_id = create_response.json()[0]["id"]
     
     # READ
     read_response = client.get(f"/locations/{location_id}")

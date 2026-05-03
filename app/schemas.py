@@ -1,7 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel, ConfigDict, field_validator
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 class Trip(str, Enum):
     south_america = "South America"
@@ -61,3 +61,8 @@ class LocationResponse(BaseModel):
     time: int
     source: str
     trip: str
+
+
+class LocationCreateBatch(BaseModel):
+    """Schema for batch location creation."""
+    locations: List[LocationCreate]
