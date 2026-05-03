@@ -34,7 +34,7 @@ async def root():
 
 
 #endpoint to stop web app hosted in renderer from sleeping
-@app.get("/health")
+@app.head("/health")
 async def health():
     return {"message": "alive"}
 
