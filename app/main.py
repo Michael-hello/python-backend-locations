@@ -24,6 +24,19 @@ def check_header_api_key(request: Request):
 app = FastAPI(lifespan=lifespan)
 api_key = "0w6ph89tvHVkcyKzClMwRFtIczJFPHZb"
 
+
+@app.on_event("startup")
+async def startup_event(db: Session = Depends(get_db)):
+    # Code here runs once when the app starts
+    print("FastAPI app is starting up...")
+
+    #delete any test locations from development to prevent cluttering the database
+    test_locations = db.query(Location).filter(Location.source == "test").all()
+    [db.delete(loc) for loc in test_locations]
+    db.commit()
+
+
+
 logger = logging.getLogger('myapp')
 logging.basicConfig(filename='myapp.log', level=logging.WARNING, format='%(asctime)s %(levelname)s:%(message)s')
 
