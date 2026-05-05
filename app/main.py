@@ -28,11 +28,13 @@ origins = [
     'http://michael-hello.github.io/react-app/*',
     'https://michael-hello.github.io/react-app/*',
     'http://michael-hello.github.io/react-app',
-    'https://michael-hello.github.io/react-app',  ] 
+    'https://michael-hello.github.io/react-app',
+    'https://michael-hello.github.io/*'  ] 
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://michael-hello\.github\.io/.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
