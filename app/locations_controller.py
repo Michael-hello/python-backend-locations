@@ -58,6 +58,22 @@ def SetupLocationsController(app):
             created_locations.append(db_location)
         
         return created_locations
+    
+
+    @app.get("/locations_latest", response_model=List[LocationResponse], status_code=status.HTTP_201_CREATED)
+    async def get_latest_location(request: Request, db: Session = Depends(get_db)):
+        """Get most recent location."""
+
+        if not check_header_api_key(request):
+            raise HTTPException( status_code=status.HTTP_401_UNAUTHORIZED )
+
+        location = db.query(Location).order_by(Location.id.desc()).first()
+        if not location:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"No locations found"
+            )
+        return [ location ]
 
 
 
@@ -76,21 +92,6 @@ def SetupLocationsController(app):
             )
         return location
 
-
-    @app.get("/locations_latest", response_model=LocationResponse)
-    async def get_latest_location(request: Request, db: Session = Depends(get_db)):
-        """Get most recent location."""
-
-        if not check_header_api_key(request):
-            raise HTTPException( status_code=status.HTTP_401_UNAUTHORIZED )
-
-        location = db.query(Location).order_by(Location.id.desc()).first()
-        if not location:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"No locations found"
-            )
-        return location
 
 
 

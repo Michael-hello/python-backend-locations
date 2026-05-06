@@ -12,7 +12,7 @@ Location schema:
 
 To run the app: 
     pipenv shell
-    fastapi dev main.py
+    fastapi dev app/main.py
         OR
     pipenv run uvicorn app.main:app --reload
 
