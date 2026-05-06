@@ -21,19 +21,17 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 origins = [
-    'http://localhost:5173', 
-    'https://localhost:5173', 
-    'http://127.0.0.1:5173',
-    'https://127.0.0.1:5173',
-    'http://michael-hello.github.io/react-app/*',
-    'https://michael-hello.github.io/react-app/*',
-    'http://michael-hello.github.io/react-app',
-    'https://michael-hello.github.io/react-app',
-    'https://michael-hello.github.io/*'  ] 
+    "http://localhost:5173",
+    "https://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://127.0.0.1:5173",
+    "https://michael-hello.github.io",
+    "http://michael-hello.github.io"
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins="*",
+    allow_origins=origins,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
